@@ -1,0 +1,162 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  USER
+}
+
+enum AlertStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum AlertType {
+  FIRE
+  WARNING
+  LOW_BATTERY
+  WEAK_SIGNAL
+  OFFLINE
+}
+
+enum SensorMetric {
+  SMOKE
+  TEMPERATURE
+  BATTERY
+  WIFI
+  POWER
+  STATE
+}
+
+model User {
+  id           String   @id @default(uuid())
+  fullName     String
+  email        String   @unique
+  phone        String? 
+  passwordHash String
+  role         Role     @default(USER)
+  isActive     Boolean  @default(true)
+  createdById  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  createdBy    User?   @relation("UserCreatedBy", fields: [createdById], references: [id])
+  createdUsers User[]  @relation("UserCreatedBy")
+
+  locations UserLocation[]
+
+  @@map("users")
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  name      String
+  code      String?
+  parentId  String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parent   Location?  @relation("LocationTree", fields: [parentId], references: [id])
+  children Location[] @relation("LocationTree")
+
+  devices Device[]
+  users   UserLocation[]
+
+  @@map("locations")
+}
+
+model UserLocation {
+  id         String   @id @default(uuid())
+  userId     String
+  locationId String
+  assignedAt DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, locationId])
+  @@map("user_locations")
+}
+
+model Device {
+  id         String   @id @default(uuid())
+  locationId String
+  thingId    String   @unique
+  thingKey   String   @unique
+  extId      String   @unique
+  name       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  location   Location      @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  status     DeviceStatus?
+  sensorLogs SensorLog[]
+  alerts     Alert[]
+
+  @@map("devices")
+}
+
+model DeviceStatus {
+  id       String @id @default(uuid())
+  deviceId String @unique
+
+  smokeLevel   Float?
+  temperature  Float?
+  batteryLevel Int?
+  wifiSignal   Int?
+  powerVoltage Float?
+  state        Int?
+
+  smokeUpdatedAt       DateTime?
+  temperatureUpdatedAt DateTime?
+  batteryUpdatedAt     DateTime?
+  wifiUpdatedAt        DateTime?
+  powerUpdatedAt       DateTime?
+  stateUpdatedAt       DateTime?
+  lastSyncAt           DateTime?
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@map("device_status")
+}
+
+model SensorLog {
+  id         String       @id @default(uuid())
+  deviceId   String
+  metric     SensorMetric
+  value      Float
+  recordedAt DateTime     @default(now())
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, metric, recordedAt])
+  @@map("sensor_logs")
+}
+
+model Alert {
+  id          String      @id @default(uuid())
+  deviceId    String
+  alertType   AlertType
+  state       Int?
+  value       Float?
+  status      AlertStatus @default(ACTIVE)
+  triggeredAt DateTime    @default(now())
+  resolvedAt  DateTime?
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, triggeredAt])
+  @@index([status])
+  @@index([alertType])
+  @@map("alerts")
+}

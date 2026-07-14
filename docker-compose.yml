@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fireguard_db
+    environment:
+      POSTGRES_DB: fireguard
+      POSTGRES_USER: fireguard
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fireguard"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fireguard_backend
+    environment:
+      DATABASE_URL: postgresql://fireguard:${DB_PASSWORD}@postgres:5432/fireguard
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 7d
+      MQTT_BROKER: mqtt://host.docker.internal:1883
+      PORT: 3000
+      CLIENT_URL: ${CLIENT_URL}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+        VITE_SOCKET_URL: ""
+    container_name: fireguard_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
