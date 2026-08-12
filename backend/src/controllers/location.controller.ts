@@ -38,8 +38,13 @@ export const updateLocationHandler = catchAsync(async (req: Request, res: Respon
 
 export const deleteLocationHandler = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string
-  await deleteLocation(id)
-  return sendSuccess(res, null, 'Xóa thành công')
+  const result = await deleteLocation(id)
+
+  if (!result.success) {
+    return sendError(res, result.message, 400)
+  }
+
+  return sendSuccess(res, null, result.message)
 })
 
 export const assignUser = catchAsync(async (req: Request, res: Response) => {

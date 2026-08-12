@@ -122,7 +122,37 @@ export const updateLocation = async (id: string, data: {
 }
 
 export const deleteLocation = async (id: string) => {
-  return prisma.location.delete({ where: { id } })
+  // Kiểm tra có node con không
+  const childCount = await prisma.location.count({
+    where: { parentId: id }
+  })
+
+  if (childCount > 0) {
+    return {
+      success: false,
+      message: `Không thể xóa khu vực này vì còn ${childCount} khu vực con. Vui lòng xóa các khu vực con trước.`
+    }
+  }
+
+  // Kiểm tra có thiết bị không
+  const deviceCount = await prisma.device.count({
+    where: { locationId: id }
+  })
+
+  if (deviceCount > 0) {
+    return {
+      success: false,
+      message: `Không thể xóa khu vực này vì còn ${deviceCount} thiết bị. Vui lòng xóa các thiết bị trước.`
+    }
+  }
+
+  // Xóa user assignments trước
+  await prisma.userLocation.deleteMany({ where: { locationId: id } })
+
+  // Xóa location
+  await prisma.location.delete({ where: { id } })
+
+  return { success: true, message: 'Đã xóa khu vực' }
 }
 
 export const findLocationById = async (id: string) => {

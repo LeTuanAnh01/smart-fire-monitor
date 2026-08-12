@@ -1,10 +1,10 @@
-import { Typography, Card, Button, Modal, Form, Input, message, Popconfirm, Space, Tag, Row, Col, Spin } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined, ApartmentOutlined } from '@ant-design/icons'
+import { Card, Button, Modal, Form, Input, message, Popconfirm, Space, Tag, Row, Col, Spin } from 'antd'
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/shared/context/AuthContext'
 import api from '@/shared/api/axios'
 
-const { Title } = Typography
+
 
 const countDevices = (node: any): number => {
   const direct = node.devices?.length || 0
@@ -139,9 +139,6 @@ export default function Locations() {
 
   const renderNodes = (nodes: any[], depth = 0): React.ReactNode =>
     nodes.map(node => {
-      const deviceCount = countDevices(node)
-      const alertCount = countAlerts(node)
-      const worst = getWorstState(node)
       const hasChildren = node.children?.length > 0
       const isExpanded = expandedIds.has(node.id)
       const isSelected = selected?.id === node.id
@@ -162,7 +159,6 @@ export default function Locations() {
               >
                 {hasChildren ? (isExpanded ? '▼' : '▶') : ''}
               </span>
-              <span className="text-sm flex-shrink-0">{STATE_ICON[worst]}</span>
               <span className={`text-sm truncate ${isSelected ? 'text-blue-600 font-medium' : 'text-gray-800'}`}>
                 {node.name}
               </span>
@@ -172,12 +168,7 @@ export default function Locations() {
             </div>
 
             <div className="flex items-center gap-1 flex-shrink-0">
-              {alertCount > 0 && (
-                <Tag color="red" className="text-xs m-0">{alertCount} 🚨</Tag>
-              )}
-              {deviceCount > 0 && (
-                <Tag color="blue" className="text-xs m-0">{deviceCount} TB</Tag>
-              )}
+            
               {isAdmin && (
                 <Space size={2}
                   className="opacity-0 group-hover:opacity-100 transition-opacity ml-1"
@@ -343,10 +334,6 @@ export default function Locations() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <Title level={4} className="!mb-0">
-          <ApartmentOutlined className="mr-2" />
-          Quản lý khu vực
-        </Title>
         {isAdmin && (
           <Button type="primary" icon={<PlusOutlined />} onClick={() => openAdd()}>
             Thêm khu vực gốc

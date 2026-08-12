@@ -88,7 +88,7 @@ export default function LoginForm() {
 
         <div className="text-center mt-4">
           <Text type="secondary" className="text-xs">
-            Smart Fire Monitor © 2024 — Hệ thống quản lý báo cháy thông minh
+            Smart Fire Monitor © 2026 — Hệ thống quản lý báo cháy thông minh
           </Text>
         </div>
       </Card>

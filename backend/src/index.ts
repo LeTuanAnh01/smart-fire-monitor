@@ -11,6 +11,7 @@ import statsRoutes from './routes/stats.routes'
 import { initSocket } from './socket/socket.service'
 import { initMQTT, checkOfflineDevices } from './mqtt/mqtt.service'
 import locationRoutes from './routes/location.routes'
+import simulatorRoutes from './routes/simulator.routes'
 
 dotenv.config()
 
@@ -34,6 +35,7 @@ app.use('/api/alerts', alertRoutes)
 app.use('/api/users', userRoutes)
 app.use('/api/stats', statsRoutes)
 app.use('/api/locations', locationRoutes)
+app.use('/api/simulator', simulatorRoutes)
 
 
 app.get('/health', (_, res) => res.json({ status: 'ok' }))

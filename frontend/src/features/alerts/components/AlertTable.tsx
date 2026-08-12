@@ -105,9 +105,9 @@ export default function AlertTable({
         showTotal: (total) => `Tổng ${total} cảnh báo`,
         showSizeChanger: false,
       }}
-      rowClassName={(record) =>
-        record.state === 1 && record.status === 'ACTIVE' ? 'bg-red-50' : ''
-      }
+      // rowClassName={(record) =>
+      //   record.state === 1 && record.status === 'ACTIVE' ? 'bg-red-50' : ''
+      // }
       scroll={{ x: 800 }}
     />
   )

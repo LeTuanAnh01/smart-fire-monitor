@@ -1,4 +1,4 @@
-import { Typography, Card, message } from 'antd'
+import { Card, message } from 'antd'
 import { useState } from 'react'
 import { useAuth } from '@/shared/context/AuthContext'
 import { useUsers } from './hooks/useUsers'
@@ -6,7 +6,7 @@ import UserTable from './components/UserTable'
 import UserForm from './components/UserForm'
 import { userApi } from './api/user.api'
 
-const { Title } = Typography
+
 
 export default function Users() {
   const { user } = useAuth()
@@ -34,7 +34,6 @@ export default function Users() {
 
   return (
     <div>
-      <Title level={4} className="!mb-6">Quản lý người dùng</Title>
 
       <Card className="shadow-sm">
         <UserTable

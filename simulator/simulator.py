@@ -5,10 +5,11 @@ import random
 import sys
 import urllib.request
 import urllib.parse
+import os
 
 BROKER = "127.0.0.1"
 PORT = 1883
-API_URL = "http://localhost:3000/api"
+API_URL = os.getenv("API_URL", "http://localhost:3002/api")
 
 # ── Đăng nhập lấy token ──
 def get_token():
@@ -23,15 +24,25 @@ def get_token():
         body = json.loads(res.read())
         return body["data"]["token"]
 
-# ── Lấy danh sách thiết bị từ API ──
+# ── Lấy TOÀN BỘ danh sách thiết bị ──
 def get_devices(token):
-    req = urllib.request.Request(
-        f"{API_URL}/devices?limit=100",
-        headers={"Authorization": f"Bearer {token}"}
-    )
-    with urllib.request.urlopen(req) as res:
-        body = json.loads(res.read())
-        return body["data"]["items"]
+    all_devices = []
+    page = 1
+    limit = 200
+    while True:
+        req = urllib.request.Request(
+            f"{API_URL}/devices?limit={limit}&page={page}",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        with urllib.request.urlopen(req) as res:
+            body = json.loads(res.read())
+            items = body["data"]["items"]
+            all_devices.extend(items)
+            total = body["data"]["total"]
+            if len(all_devices) >= total:
+                break
+            page += 1
+    return all_devices
 
 # ── Tạo payload theo format thật ──
 def make_payload(thing_id: str, is_danger: bool) -> dict:
@@ -74,7 +85,7 @@ client.connect(BROKER, PORT, 60)
 client.loop_start()
 time.sleep(1)
 
-ALERT_CHANCE = 0.15
+ALERT_CHANCE = 0
 DEVICE_REFRESH_INTERVAL = 60  # Refresh danh sách thiết bị mỗi 60 giây
 
 print("🔑 Đăng nhập...")
@@ -127,7 +138,7 @@ try:
             client.publish(topic, json.dumps(payload))
             print(f"  {tag} | {name:35s} | smoke: {smoke:6.1f} | state: {state}")
 
-        time.sleep(5)
+        time.sleep(10800)
 
 except KeyboardInterrupt:
     print("\n🛑 Simulator stopped")

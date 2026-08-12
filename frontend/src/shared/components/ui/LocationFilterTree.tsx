@@ -2,35 +2,13 @@ import { Tree, Card, Input, Spin } from 'antd'
 import { useState, useEffect } from 'react'
 import api from '@/shared/api/axios'
 
-const ICONS: Record<string, string> = { n: '✅', w: '⚠️', d: '🔴', o: '📵' }
-
-function getWorstState(node: any): string {
-  const rank: Record<string, number> = { d: 3, w: 2, o: 1, n: 0 }
-  let worst = 'n'
-  if (node.devices) {
-    node.devices.forEach((d: any) => {
-      const s = d.status?.state
-      const key = s === 1 ? 'd' : s === 2 ? 'w' : s === -1 ? 'o' : 'n'
-      if (rank[key] > rank[worst]) worst = key
-    })
-  }
-  if (node.children) {
-    node.children.forEach((c: any) => {
-      const cs = getWorstState(c)
-      if (rank[cs] > rank[worst]) worst = cs
-    })
-  }
-  return worst
-}
-
 const toTreeData = (nodes: any[], showState = false): any[] =>
   nodes.map(n => {
-    const worst = showState ? getWorstState(n) : null
     return {
       key: n.id,
       title: (
         <span>
-          {showState && worst && <span className="mr-1">{ICONS[worst]}</span>}
+        {/* {showState && worst && <span className="mr-1">{ICONS[worst]}</span>} */}
           {n.name}
         </span>
       ),

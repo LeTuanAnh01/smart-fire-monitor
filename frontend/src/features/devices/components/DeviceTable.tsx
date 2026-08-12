@@ -1,7 +1,6 @@
 import { Table, Tag, Input, Button, Tooltip, Space, Popconfirm } from 'antd'
 import { ReloadOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
-// import { useRef } from 'react'
 import { Device, STATE_LABELS } from '@/shared/types'
 
 interface Props {
@@ -17,50 +16,15 @@ interface Props {
   canAddDevice: boolean
   onAdd: () => void
   onDelete: (id: string) => void
+  onStateFilter: (states: number[]) => void 
 }
 
 export default function DeviceTable({
   data, total, page, limit, loading,
-  onPageChange, onSearch,
-  onRefresh, onView, canAddDevice, onAdd, onDelete
+  onPageChange, onSearch, onRefresh,
+  onView, canAddDevice, onAdd, onDelete,
+  onStateFilter 
 }: Props) {
-  // const searchInput = useRef<any>(null)
-
-  // const getColumnSearchProps = (
-  //   dataIndex: string,
-  //   renderFn: (record: Device) => string
-  // ): ColumnType<Device> => ({
-  //   filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-  //     <div style={{ padding: 8 }}>
-  //       <Input
-  //         ref={searchInput}
-  //         placeholder="Tìm kiếm..."
-  //         value={selectedKeys[0]}
-  //         onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-  //         onPressEnter={() => confirm()}
-  //         style={{ marginBottom: 8, display: 'block' }}
-  //       />
-  //       <div className="flex gap-2">
-  //         <Button type="primary" icon={<SearchOutlined />} size="small" onClick={() => confirm()}>
-  //           Tìm
-  //         </Button>
-  //         <Button size="small" onClick={() => { clearFilters?.(); confirm() }}>
-  //           Xóa
-  //         </Button>
-  //       </div>
-  //     </div>
-  //   ),
-  //   filterIcon: (filtered) => (
-  //     <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-  //   ),
-  //   onFilter: (value, record) =>
-  //     renderFn(record).toLowerCase().includes((value as string).toLowerCase()),
-  //   filterDropdownProps: {
-  //     onOpenChange: (open: boolean) => {
-  //       if (open) setTimeout(() => searchInput.current?.select(), 100)
-  //     }
-  //   },
-  // })
 
   const columns: ColumnsType<Device> = [
     {
@@ -99,7 +63,8 @@ export default function DeviceTable({
         { text: '⚠️ Cảnh báo',    value: 2 },
         { text: '📵 Offline',      value: -1 },
       ],
-      onFilter: (value, record) => record.status?.state === value,
+      filterMultiple: true,
+
       render: (_, record) => {
         const state = record.status?.state
         if (state === null || state === undefined) return <Tag>Chưa có dữ liệu</Tag>
@@ -212,6 +177,10 @@ export default function DeviceTable({
         dataSource={data}
         rowKey="id"
         loading={loading}
+        onChange={(_, filters) => {
+          const states = (filters.state as number[]) || []
+          onStateFilter(states)
+        }}
         pagination={{
           current: page,
           pageSize: limit,

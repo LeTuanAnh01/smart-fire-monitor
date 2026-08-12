@@ -1,4 +1,4 @@
-import { Typography, Card, Row, Col } from 'antd'
+import {Card, Row, Col } from 'antd'
 import { useState } from 'react'
 import { Device } from '@/shared/types'
 import { useAuth } from '@/shared/context/AuthContext'
@@ -9,7 +9,7 @@ import { useDevices } from './hooks/useDevices'
 import LocationFilterTree from '@/shared/components/ui/LocationFilterTree'
 import { deviceApi } from './api/device.api'
 
-const { Title } = Typography
+
 
 export default function Devices() {
   const { user } = useAuth() 
@@ -21,7 +21,6 @@ export default function Devices() {
 
   return (
     <div>
-      <Title level={4} className="!mb-6">Quản lý thiết bị</Title>
       <Row gutter={16} style={{ height: 'calc(100vh - 160px)' }}>
         {/* Cây location */}
         <Col xs={24} md={6} lg={5} style={{ height: '100%' }}>
@@ -47,8 +46,9 @@ export default function Devices() {
               canAddDevice={canAddDevice}
               onPageChange={(page) => setFilters(prev => ({ ...prev, page }))}
               onSearch={(search) => setFilters(prev => ({ ...prev, search, page: 1 }))}
+              onStateFilter={(states) => setFilters(prev => ({ ...prev, states, page: 1 }))}
               onRefresh={() => {
-                setFilters({ page: 1, limit: 20 }) 
+                setFilters({ page: 1, limit: 20 })
                 setSelectedLocationId(null)
               }}
               onView={setSelectedDevice}

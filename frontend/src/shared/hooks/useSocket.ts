@@ -12,7 +12,8 @@ export default function SocketProvider() {
     if (socketRef.current?.connected) return
     if (!user) return
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000', {
+    const socket = io(import.meta.env.VITE_SOCKET_URL || '', {  // '' = same origin
+      path: '/socket.io',
       reconnection: true,
       reconnectionDelay: 2000,
     })
@@ -21,6 +22,19 @@ export default function SocketProvider() {
     socket.on('connect', () => {
       console.log('Socket connected:', socket.id)
       socket.emit('join-locations', user.locationIds || [])
+    })
+
+    socket.on('active-fire-alerts', (alerts: any[]) => {
+      alerts.forEach((alert, i) => {
+        setTimeout(() => {
+          notification.error({
+            message: `🔥 Đang có cháy — ${alert.device?.name || 'Thiết bị'}`,
+            description: alert.location?.path || alert.location?.name || '—',
+            duration: 0,
+            key: `fire-active-${alert.id}`,
+          })
+        }, i * 500)  // stagger 500ms để không hiện cùng lúc
+      })
     })
 
     socket.on('new-alert', (data: any) => {

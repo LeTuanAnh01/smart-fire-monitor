@@ -70,7 +70,7 @@ export default function SensorLogChart({ title, logs, unit, color = '#1677ff' }:
   }
 
   return (
-    <Card title={`${title} (${logs.length} điểm)`} size="small" className="shadow-sm">
+    <Card title={`${title}`} size="small" className="shadow-sm">
       <ResponsiveContainer width="100%" height={180}>
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />

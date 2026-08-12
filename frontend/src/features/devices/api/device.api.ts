@@ -7,6 +7,7 @@ export const deviceApi = {
     search?: string
     locationId?: string
     state?: number
+    states?: string
   }) => api.get('/devices', { params }),
 
   getDeviceById: (id: string) => api.get(`/devices/${id}`),

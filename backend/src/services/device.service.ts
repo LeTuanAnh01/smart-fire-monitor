@@ -6,10 +6,11 @@ export const findDevices = async (filters: {
   locationIds: string[] | null
   locationId?: string
   search?: string
+  states?: number[]
   page: number
   limit: number
 }) => {
-  const { locationIds, locationId, search, page, limit } = filters
+  const { locationIds, locationId, search, states, page, limit } = filters
 
   // Lấy tất cả locationIds có thể truy cập (bao gồm descendants)
   let accessibleIds: string[] | undefined
@@ -22,7 +23,10 @@ export const findDevices = async (filters: {
 
   const where: any = {
     ...(search && { name: { contains: search, mode: 'insensitive' } }),
-    ...(accessibleIds && { locationId: { in: accessibleIds } })
+    ...(accessibleIds && { locationId: { in: accessibleIds } }),
+    ...(states && states.length > 0 && {
+      status: { state: { in: states } }
+    })
   }
 
   const [devices, total] = await Promise.all([
@@ -30,6 +34,10 @@ export const findDevices = async (filters: {
       where,
       skip: (page - 1) * limit,
       take: limit,
+      orderBy: [
+        { status: { state: 'desc' } },
+        { name: 'asc' }
+      ],
       include: {
         status: true,
         location: {

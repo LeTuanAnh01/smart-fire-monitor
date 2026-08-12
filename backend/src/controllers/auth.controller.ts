@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { sendSuccess, sendError } from '../utils/response'
-import { verifyLogin, generateToken, getUserById, updatePassword, updateUserProfile  } from '../services/auth.service'
+import { verifyLogin, generateToken, getUserById, updatePassword, updateUserProfile } from '../services/auth.service'
 import { catchAsync } from '../utils/catchAsync'
 
 export const login = catchAsync(async (req: Request, res: Response) => {
@@ -10,10 +10,10 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   const user = await verifyLogin(email, password)
   if (!user) return sendError(res, 'Email hoặc mật khẩu không đúng', 401, 'AUTH_INVALID')
 
-  const { token, buildingIds } = generateToken(user)
+  const { token, locationIds } = generateToken(user)
   return sendSuccess(res, {
     token,
-    user: { id: user.id, fullName: user.fullName, email: user.email, role: user.role, buildingIds }
+    user: { id: user.id, fullName: user.fullName, email: user.email, phone: user.phone, role: user.role, locationIds }
   })
 })
 
@@ -25,9 +25,10 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
     id: user.id,
     fullName: user.fullName,
     email: user.email,
+    phone: user.phone,
     role: user.role,
     isActive: user.isActive,
-    buildings: user.buildingManagers.map(bm => bm.building)
+    locations: user.locations.map(ul => ul.location)
   })
 })
 
@@ -42,9 +43,9 @@ export const changePassword = catchAsync(async (req: Request, res: Response) => 
 })
 
 export const updateMe = catchAsync(async (req: Request, res: Response) => {
-  const { fullName } = req.body
+  const { fullName, phone } = req.body
   if (!fullName?.trim()) return sendError(res, 'Họ tên không được để trống')
 
-  const user = await updateUserProfile(req.user.userId, fullName)
+  const user = await updateUserProfile(req.user.userId, { fullName, phone })
   return sendSuccess(res, user, 'Cập nhật thành công')
 })

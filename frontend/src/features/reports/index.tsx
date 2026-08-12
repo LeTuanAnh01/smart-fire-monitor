@@ -1,4 +1,4 @@
-import { Typography, Card } from 'antd'
+import { Card } from 'antd'
 import { useState, useEffect } from 'react'
 import dayjs from 'dayjs'
 import {
@@ -10,7 +10,7 @@ import ReportTable from './components/ReportTable'
 import { reportApi } from './api/report.api'
 import { Alert } from '@/shared/types'
 
-const { Title } = Typography
+
 
 interface Filters {
   locationId?: string
@@ -117,7 +117,6 @@ export default function Reports() {
 
   return (
     <div>
-      <Title level={4} className="!mb-6">Báo cáo sự cố</Title>
 
       <ReportFilters
         onChange={(f) => setFilters(prev => ({ ...prev, ...f, page: 1 }))}

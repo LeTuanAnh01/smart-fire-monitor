@@ -12,6 +12,8 @@ const Reports = lazy(() => import('@/features/reports'))
 const Settings = lazy(() => import('@/features/settings'))
 const Locations = lazy(() => import('@/features/locations'))
 const DeviceMap = lazy(() => import('@/features/device-map'))
+const Simulator = lazy(() => import('@/features/simulator'))
+
 
 const Loading = () => (
   <div className="flex items-center justify-center h-screen">
@@ -38,6 +40,8 @@ export const router = createBrowserRouter([
       { path: 'reports', element: <Wrap><Reports /></Wrap> },
       { path: 'settings', element: <Wrap><Settings /></Wrap> },
       { path: 'device-map', element: <Wrap><DeviceMap /></Wrap> },
+      { path: 'simulator', element: <Wrap><Simulator /></Wrap> }
+
     ]
   }
 ])

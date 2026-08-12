@@ -9,16 +9,24 @@ interface Props {
   valueColor?: string
   sub?: string
   subColor?: string
+  bgColor?: string
+  pulse?: boolean
 }
 
-export default function StatCard({ title, value, icon, iconColor, valueColor, sub, subColor }: Props) {
+export default function StatCard({ title, value, icon, iconColor, valueColor, sub, subColor, bgColor, pulse }: Props) {
   return (
-    <Card className="shadow-sm h-full" size="small">
+    <Card
+      className="shadow-sm h-full"
+      size="small"
+      style={bgColor ? { background: bgColor, border: 'none' } : undefined}
+    >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <div className="text-xs text-gray-400 mb-1">{title}</div>
+          <div className="text-xs mb-1" style={{ color: bgColor ? 'rgba(255,255,255,0.7)' : '#9ca3af' }}>
+            {title}
+          </div>
           <div
-            className="text-2xl font-semibold"
+            className={`text-2xl font-semibold ${pulse ? 'animate-pulse' : ''}`}
             style={{ color: valueColor || '#1f2937' }}
           >
             {value}
@@ -31,8 +39,8 @@ export default function StatCard({ title, value, icon, iconColor, valueColor, su
         </div>
         {icon && (
           <div
-            className="text-2xl opacity-20"
-            style={{ color: iconColor || '#6b7280' }}
+            className="text-2xl"
+            style={{ color: iconColor || '#6b7280', opacity: bgColor ? 0.4 : 0.2 }}
           >
             {icon}
           </div>

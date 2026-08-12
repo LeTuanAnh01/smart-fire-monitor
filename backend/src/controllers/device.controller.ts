@@ -13,10 +13,17 @@ export const getDevices = catchAsync(async (req: Request, res: Response) => {
   const locationFilter = getLocationFilter(req)
   const queryLocationId = req.query.locationId as string | undefined
 
+  // Parse states từ query: ?states=1,2,-1
+  const statesRaw = req.query.states as string | undefined
+  const states = statesRaw
+    ? statesRaw.split(',').map(Number).filter(n => !isNaN(n))
+    : undefined
+
   const { items, total } = await findDevices({
     locationIds: locationFilter,
     locationId: queryLocationId,
     search: req.query.search as string,
+    states,
     page,
     limit
   })
