@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Select, DatePicker, Button, Row, Col } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { Select, DatePicker, Button, Row, Col, Input } from 'antd'
+import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import type { Dayjs } from 'dayjs'
 
 const { RangePicker } = DatePicker
@@ -15,18 +15,33 @@ export default function AlertFilters({ onChange, onRefresh, loading }: Props) {
   const [status, setStatus] = useState<string | undefined>()
   const [alertType, setAlertType] = useState<string | undefined>()
   const [dates, setDates] = useState<[Dayjs, Dayjs] | null>(null)
+  const [search, setSearch] = useState<string>('')
 
   const handleRefresh = () => {
     setStatus(undefined)
     setAlertType(undefined)
     setDates(null)
-    onChange({ status: undefined, alertType: undefined, from: undefined, to: undefined, page: 1 })
+    setSearch('')
+    onChange({ status: undefined, alertType: undefined, from: undefined, to: undefined, search: undefined, page: 1 })
     onRefresh()
   }
 
   return (
     <Row gutter={[12, 12]} className="mb-4">
       <Col xs={24} sm={8} md={6}>
+        <Input.Search
+          value={search}
+          placeholder="Tìm tên thiết bị..."
+          allowClear
+          prefix={<SearchOutlined className="text-gray-400" />}
+          onChange={e => {
+            setSearch(e.target.value)
+            if (!e.target.value) onChange({ search: undefined, page: 1 })
+          }}
+          onSearch={val => onChange({ search: val || undefined, page: 1 })}
+        />
+      </Col>
+      <Col xs={24} sm={8} md={5}>
         <Select
           value={status}
           placeholder="Trạng thái"
@@ -34,13 +49,13 @@ export default function AlertFilters({ onChange, onRefresh, loading }: Props) {
           className="w-full"
           onChange={val => { setStatus(val); onChange({ status: val, page: 1 }) }}
           options={[
-            { value: 'ACTIVE', label: 'Đang xảy ra' },
+            { value: 'ACTIVE',       label: 'Đang xảy ra' },
             { value: 'ACKNOWLEDGED', label: 'Đã xác nhận' },
-            { value: 'RESOLVED', label: 'Đã xử lý' },
+            { value: 'RESOLVED',     label: 'Đã xử lý' },
           ]}
         />
       </Col>
-      <Col xs={24} sm={8} md={6}>
+      <Col xs={24} sm={8} md={5}>
         <Select
           value={alertType}
           placeholder="Loại cảnh báo"
@@ -56,7 +71,7 @@ export default function AlertFilters({ onChange, onRefresh, loading }: Props) {
           ]}
         />
       </Col>
-      <Col xs={24} sm={8} md={8}>
+      <Col xs={24} sm={12} md={6}>
         <RangePicker
           value={dates}
           className="w-full"
@@ -71,7 +86,7 @@ export default function AlertFilters({ onChange, onRefresh, loading }: Props) {
           }}
         />
       </Col>
-      <Col xs={24} sm={4} md={4}>
+      <Col xs={24} sm={4} md={2}>
         <Button icon={<ReloadOutlined />} onClick={handleRefresh} loading={loading} className="w-full">
           Làm mới
         </Button>

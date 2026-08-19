@@ -106,9 +106,24 @@ export const initMQTT = () => {
         update: statusUpdate,
       })
 
-      // 2. Lưu sensor logs
+      // 2. Lưu sensor logs — kiểm tra trùng trước khi insert
       if (logsToCreate.length > 0) {
-        await prisma.sensorLog.createMany({ data: logsToCreate })
+        // Lấy recordedAt của batch này
+        const recordedAt = logsToCreate[0].recordedAt
+
+        // Kiểm tra đã có log với deviceId + recordedAt này chưa
+        const existingLog = await prisma.sensorLog.findFirst({
+          where: {
+            deviceId: device.id,
+            recordedAt: recordedAt,
+          }
+        })
+
+        if (!existingLog) {
+          await prisma.sensorLog.createMany({ data: logsToCreate })
+        } else {
+          console.log(`⏭️ Duplicate log skipped: ${device.name} @ ${recordedAt.toISOString()}`)
+        }
       }
 
       // 3. Emit sensor-update realtime

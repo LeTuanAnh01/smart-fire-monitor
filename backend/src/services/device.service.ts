@@ -156,7 +156,7 @@ export const findDeviceLogs = async (filters: {
       where,
       orderBy: { recordedAt: 'desc' },
       skip: (page - 1) * limit,
-      take: Math.min(limit, 2000),
+      take: limit,
     }),
     prisma.sensorLog.count({ where })
   ])

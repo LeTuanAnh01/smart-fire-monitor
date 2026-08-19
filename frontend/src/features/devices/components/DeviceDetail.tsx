@@ -307,7 +307,6 @@ export default function DeviceDetail({ device, open, onClose }: Props) {
             children: (
               <DeviceHistoryTable
                 deviceId={device.id}
-                dateRange={dateRange}
               />
             )
           }
@@ -316,4 +315,4 @@ export default function DeviceDetail({ device, open, onClose }: Props) {
       
     </Drawer>
   )
-}
+} 
